@@ -9,6 +9,8 @@ env:
 jobs:
   build-windows:
     runs-on: windows-latest
+    env:
+      CARGO_TARGET_DIR: D:\t
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,14 +46,15 @@ jobs:
       - name: Ensure FFmpeg sidecar
         run: pnpm run sidecar:ensure-ffmpeg
 
+      - name: Enable Windows long paths
+        run: git config --system core.longpaths true
+
       - name: Build Tauri app
-        env:
-          CARGO_TARGET_DIR: t
         run: pnpm tauri build --ci
 
       - name: Upload installer
         uses: actions/upload-artifact@v4
         with:
           name: voicetypr-windows-x64
-          path: t/release/bundle/nsis/*.exe
+          path: D:\t\release\bundle\nsis\*.exe
           retention-days: 30
