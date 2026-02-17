@@ -212,6 +212,8 @@ jobs:
   # ===========================================
   build-windows:
     runs-on: windows-latest
+    env:
+      CARGO_TARGET_DIR: D:\t
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -247,11 +249,13 @@ jobs:
       - name: Ensure FFmpeg sidecar
         run: pnpm run sidecar:ensure-ffmpeg
 
+      - name: Enable Windows long paths
+        run: git config --system core.longpaths true
+
       - name: Build Tauri app
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-          CARGO_TARGET_DIR: t
         run: |
           pnpm tauri build --ci
 
@@ -261,7 +265,7 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         shell: pwsh
         run: |
-          $installer = Get-ChildItem "t\release\bundle\nsis\*.exe" | Select-Object -First 1
+          $installer = Get-ChildItem "D:\t\release\bundle\nsis\*.exe" | Select-Object -First 1
           $env:TAURI_SIGNING_PRIVATE_KEY | Out-File -FilePath "$env:TEMP\tauri.key" -Encoding ascii
           pnpm tauri signer sign -f "$env:TEMP\tauri.key" -p "$env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD" $installer.FullName
           Remove-Item "$env:TEMP\tauri.key"
@@ -270,8 +274,8 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path artifacts
-          Copy-Item "t\release\bundle\nsis\*.exe" artifacts\
-          Copy-Item "t\release\bundle\nsis\*.exe.sig" artifacts\
+          Copy-Item "D:\t\release\bundle\nsis\*.exe" artifacts\
+          Copy-Item "D:\t\release\bundle\nsis\*.exe.sig" artifacts\
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
