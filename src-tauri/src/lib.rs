@@ -306,13 +306,6 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
 
             }
 
-            // Clear license cache on app start to ensure fresh checks
-            {
-                use crate::simple_cache;
-                let _ = simple_cache::remove(app.app_handle(), "license_status");
-                let _ = simple_cache::remove(app.app_handle(), "last_license_validation");
-            }
-
             // Initialize whisper manager
             let models_dir = app.path().app_data_dir()?.join("models");
             log::info!("🗂️  Models directory: {:?}", models_dir);
